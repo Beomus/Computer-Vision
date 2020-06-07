@@ -16,7 +16,7 @@ class ConvNetFactory:
         # define the network mappings
         mappings = {
             "shallownet": ConvNetFactory.ShallowNet,
-            "lenet": ConvNetFactory.Letnet,
+            "lenet": ConvNetFactory.LeNet,
             "karpathynet": ConvNetFactory.KarpathyNet,
             "minivggnet": ConvNetFactory.MiniVGGNet
         }
@@ -72,7 +72,7 @@ class ConvNetFactory:
         model.add(keras.layers.Dense(256))
         model.add(keras.layers.Activation(activation))
         model.add(keras.layers.Dense(numClasses))
-        mode.add(keras.layers.Activation("softmax"))
+        model.add(keras.layers.Activation("softmax"))
 
         return model
 
@@ -82,24 +82,25 @@ class ConvNetFactory:
         Model architecture: INPUT => (CONV2D => RELU => MAXPOOLING2D => [DROPOUT]) * 3 => OUTPUT (DENSE => SOFTMAX)
         """
         input_shape = (numChannels, imgRows, imgCols) if tf.keras.backend.image_data_format() == "channel_first" else (imgRows, imgCols, numChannels)
-        model = keras.layers.Sequential()
-        model.add(keras.layers.Conv2D(32, 5, 5, padding="same", input_shape=input_shape, activation='relu'))
+        model = keras.models.Sequential()
+        model.add(keras.layers.Conv2D(16, (5, 5), padding="same", input_shape=input_shape, activation='relu'))
         model.add(keras.layers.MaxPooling2D((2, 2), (2, 2)))
         if dropout:
             model.add(keras.layers.Dropout(0.2))
 
-        model.add(keras.layers.Conv2D(32, 5, 5, padding="same", input_shape=input_shape, activation='relu'))
+        model.add(keras.layers.Conv2D(32, (5, 5), padding="same", input_shape=input_shape, activation='relu'))
         model.add(keras.layers.MaxPooling2D((2, 2), (2, 2)))
         if dropout:
             model.add(keras.layers.Dropout(0.2))
 
-        model.add(keras.layers.Conv2D(32, 5, 5, padding="same", input_shape=input_shape, activation='relu'))
+        model.add(keras.layers.Conv2D(32, (5, 5), padding="same", input_shape=input_shape, activation='relu'))
         model.add(keras.layers.MaxPooling2D((2, 2), (2, 2)))
         if dropout:
             model.add(keras.layers.Dropout(0.2))
 
         model.add(keras.layers.Flatten())
-        model.add(keras.layers.Dense(numChannels, activation="softmax"))
+        model.add(keras.layers.Dense(numClasses))
+        model.add(keras.layers.Activation('softmax'))
 
         return model
 
@@ -111,20 +112,20 @@ class ConvNetFactory:
         input_shape = (numChannels, imgRows, imgCols) if tf.keras.backend.image_data_format() == "channel_first" else (imgRows, imgCols, numChannels)
 
         model = keras.models.Sequential()
-        model.add(keras.layers.Conv2D(32, 3, 3, padding='same', input_shape=input_shape, activation='relu'))
-        model.add(keras.layers.Conv2D(32, 3, 3, activation='relu'))
+        model.add(keras.layers.Conv2D(32, (3, 3), padding='same', input_shape=input_shape, activation='relu'))
+        model.add(keras.layers.Conv2D(32, (3, 3), activation='relu'))
         model.add(keras.layers.MaxPooling2D((2, 2)))
         if dropout:
             model.add(keras.layers.Dropout(0.2))
 
-        model.add(keras.layers.Conv2D(64, 3, 3, padding='same', activation='relu'))
-        model.add(keras.layers.Conv2D(64, 3, 3, activation='relu'))
+        model.add(keras.layers.Conv2D(64, (3, 3), padding='same', activation='relu'))
+        model.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
         model.add(keras.layers.MaxPooling2D((2, 2)))
         if dropout:
             model.add(keras.layers.Dropout(0.2))
 
         model.add(keras.layers.Flatten())
-        model.add(keras.layers.Dense(521, activation='relu'))
+        model.add(keras.layers.Dense(512, activation='relu'))
         if dropout:
             model.add(keras.layers.Dropout(0.2))
 

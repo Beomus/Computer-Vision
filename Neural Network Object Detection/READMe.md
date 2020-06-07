@@ -1,0 +1,9 @@
+# Popular Neural Network for Image Classification with CIFAR10
+
+Results
+| network     | model                            | train_val | val    |
+|-------------|----------------------------------|-----------|--------|
+| lenet       | cifar10_lenet.hdf5               | 0.9866    | 69.38% |
+| shallownet  | cifar10_shallownet.hdf5          | 0.9332    | 53.90% |
+| karpathynet | cifar10_karpathynet_dropout.hdf5 | 0.6977    | 70.70% |
+| minivggnet  | cifar10_minivggnet_dropout.hdf5  | 0.9003    | 74.17% |

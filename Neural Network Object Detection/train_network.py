@@ -3,6 +3,7 @@ import tensorflow as tf
 import keras
 from keras.utils import np_utils
 import argparse
+import os
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--network", required=True, help="name of network to build")
@@ -29,14 +30,33 @@ print("[INFO] Compiling the model...")
 model = ConvNetFactory.build(args['network'], 3, 32, 32, 10, **kargs)
 sgd = keras.optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss="categorical_crossentropy", optimizer=sgd, metrics=["accuracy"])
+model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
+    filepath="best"+args["model"],
+    save_weights_only=True,
+    monitor='accuracy',
+    mode='max',
+    save_best_only=True)
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor="accuracy",
+    min_delta=0.001,
+    patience=5,
+    verbose=1,
+    mode="auto",
+    restore_best_weights=True)
 
 print("[INFO] Training model...")
-# with tf.device('/GPU:0'):
-model.fit(x_train, y_train, batch_size=args['batchsize'], epochs=args['epochs'], verbose=args['verbose'])
+with tf.device('/GPU:0'):
+    history = model.fit(x_train, y_train, batch_size=args['batchsize'], epochs=args['epochs'], verbose=args['verbose'],
+                        callbacks=[early_stop, model_checkpoint_callback])
 
 loss, accuracy = model.evaluate(x_test, y_test, batch_size=args['batchsize'], verbose=args['verbose'])
 print(f"[INFO] Accuracy: {accuracy*100}%")
 
 print("[INFO] Saving model...")
-model.save(args['model'])
+if not os.path.exists("models"):
+    os.makedir("models")
+model.save(f"models/{args['model']}")
 
+print("[INFO] Saving metrics...")
+with open("metrics.csv", "a") as f:
+    f.write(f"{args['network']},{args['model']},{history.history['accuracy'][-1]},{round(accuracy*100,2)}%\n")
